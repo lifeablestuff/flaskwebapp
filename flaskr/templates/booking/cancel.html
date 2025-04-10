@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Booking{% endblock %}
+
+{% block content %}
+<h2>Cancel Booking</h2>
+<form method="POST">
+    <label for="booking">Select Your Booking:</label>
+    <select name="booking_id" required>
+        {% for booking in user_bookings %}
+            <option value="{{ booking.id }}">{{ booking.slot.time }} with {{ booking.slot.teacher.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Cancel Booking</button>
+</form>
+{% endblock %}
