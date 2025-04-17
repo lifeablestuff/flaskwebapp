@@ -1,1 +1,2 @@
-need to make a venv and install flask and sqlite
+# This is a simple parent-teacher booking software
+There is very simple and crude UI
