@@ -1,3 +1,5 @@
+--not being used
+
 -- User Table
 CREATE TABLE User (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +22,7 @@ CREATE TABLE ConferenceSlot (
 CREATE TABLE Booking (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     parent_id INTEGER NOT NULL,
-    slot_id INTEGER NOT NULL,
+    time DATETIME NOT NULL,
     FOREIGN KEY (parent_id) REFERENCES User(id),
     FOREIGN KEY (slot_id) REFERENCES ConferenceSlot(id)
 );

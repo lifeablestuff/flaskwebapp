@@ -1,5 +1,8 @@
+# not being used
+
+'''
 from flask import Blueprint, request, jsonify
-from flaskr.dbmodel import db, User, ConferenceSlot, Booking
+from flaskr.dbmodel import db, User, Booking
 
 bp = Blueprint('booking', __name__, url_prefix='/booking')
 
@@ -19,7 +22,7 @@ def book():
         slot.available = False
         db.session.commit()
         return jsonify({'message': 'Booking created'})
-    except Exception as e:
+    except ValueError as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
@@ -89,3 +92,4 @@ def view():
         return jsonify({'message': 'Booking not found'}), 404
 
     return jsonify({'booking': booking.serialize()})
+'''

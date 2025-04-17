@@ -1,0 +1,26 @@
+</form>
+<form method="POST" action="{{ url_for('auth.logout') }}">
+    <button type="submit">Logout</button>
+</form>
+
+
+<h3>Your Active Bookings</h3>
+{% if bookings %}
+    <ul>
+        {% for booking in bookings %}
+            <li>
+                {{ booking.time.strftime('%Y-%m-%d %H:%M') }} - Parent: {{ booking.parent.username }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You have no active bookings.</p>
+{% endif %}
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}

@@ -1,16 +1,16 @@
 import functools
-
+import html #for xss prevention
 import sqlite3
 
 from flask import Flask, make_response
-
+import os
 from flask import(
     Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app
 )
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import get_db
+# from flaskr.db import get_db
 
 #start of my spaghetti code
 
@@ -22,11 +22,18 @@ DATABASE = './instance/db.sqlite3'
 
 
 
-
-
+#stuff for database connection
+def get_db():
+    if 'db' not in g:
+        g.db = connect_db()
+    return g.db
 
 def connect_db():
-    return sqlite3.connect(current_app.config['DATABASE'])
+    db_path = os.path.join(current_app.instance_path, 'app.db')
+    print(f"path: {db_path}")
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def home():
@@ -41,9 +48,14 @@ def register():
         return render_template('auth/register.html')
     if request.method == 'POST':
         print(session)
-        if session is not None:
-            return redirect(url_for('home.home'))
-                
+        try:
+
+            if session['userid'] is not None:
+                error = 'You are already logged in!'
+                return redirect(url_for('home.home'))
+        except KeyError:
+            # Handle the case where 'userid' is not in session
+            error = None
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
@@ -55,7 +67,9 @@ def register():
     elif not password:
         error = 'Password is required.'
         flash(error)
-    
+    elif not email:
+        error = 'Email is required.'
+        flash(error)
     role = 'parent' #default user role
     db = get_db()
     if error is None:
@@ -90,17 +104,20 @@ def register():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = html.escape(request.form.get('username', '').strip())
+        password = html.escape(request.form.get('password', '').strip())
         db = get_db()
         error = None
-
+        if username is None:
+            error = 'Please enter a username'
+            flash(error)
         user = db.execute(
             'SELECT * FROM User WHERE username = ?', (username,)
         ).fetchone()
 
         if user is None:
-            error = 'Please enter a username'
+            error = 'No username found'
+            flash(error)
             return render_template('auth/login.html')
         if not check_password_hash(user['password_hash'], password):
             error = 'Incorrect password.'
@@ -109,7 +126,8 @@ def login():
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['userid'] = user['id']
+            session['role'] = user['role']
             return redirect(url_for('home.home'))
 
     
@@ -119,10 +137,10 @@ def login():
     flash(error)
     return render_template('auth/login.html')
 
-@bp.route('/logout')
+@bp.route('/logout', methods=['POST','GET'])
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('auth.login'))
 
 
 

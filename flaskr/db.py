@@ -10,28 +10,13 @@ migrate = Migrate()
 app = Flask(__name__)
 
 
-#stuff for database connection
-def get_db():
-    if 'db' not in g:
-        g.db = connect_db()
-    return g.db
-
-def connect_db():
-    print(current_app.config['SQLALCHEMY_DATABASE_URI'])
-    return sqlite3.connect(current_app.config['SQLALCHEMY_DATABASE_URI'])
-
-
-def close_connection(e=None):
-    db = getattr(g, 'db', None)
-    if db is not None:
-        db.close()
 
 
 
 def init_app(app):
     """Initialize the database with the Flask app."""
     
-    db.init_app(app)
+    #db.init_app(app)
     migrate.init_app(app,db)
     print('asdf')
     Migrate(app, db)
